@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1220">
+  <title>Wi‑Fi নিরাপত্তা ল্যাব</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1220;
+      --panel: #121c2d;
+      --panel-soft: #172338;
+      --line: #26354c;
+      --text: #eef4ff;
+      --muted: #9aa9bf;
+      --green: #58e0aa;
+      --blue: #8ab4ff;
+      --amber: #ffd27a;
+      --red: #ff8585;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(ellipse at 70% -15%, #1c3151 0, transparent 48%), var(--bg);
+      color: var(--text);
+      font: 16px/1.6 "Segoe UI", system-ui, sans-serif;
+    }
+    button, select { font: inherit; }
+    .shell { max-width: 1050px; margin: 0 auto; padding: 32px 22px 56px; }
+    header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 34px; }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 750; letter-spacing: -.02em; }
+    .brand-mark { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 13px; color: #07130e; background: var(--green); font-size: 22px; }
+    .local-tag { border: 1px solid var(--line); border-radius: 99px; padding: 5px 11px; color: var(--muted); font-size: 13px; }
+    .hero { max-width: 760px; margin-bottom: 26px; }
+    .eyebrow { color: var(--green); font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { margin: 8px 0 10px; font-size: clamp(32px, 6vw, 50px); line-height: 1.12; letter-spacing: -.04em; }
+    .hero p, .subtle { color: var(--muted); }
+    .notice { display: flex; gap: 12px; align-items: flex-start; margin: 22px 0 26px; padding: 14px 16px; border: 1px solid #244c42; border-radius: 12px; background: #10251f; color: #c4f7e2; }
+    .notice strong { display: block; margin-bottom: 2px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(280px, .75fr); gap: 18px; align-items: start; }
+    .card { border: 1px solid var(--line); border-radius: 16px; background: rgba(18, 28, 45, .94); padding: 22px; }
+    h2 { margin: 0; font-size: 20px; letter-spacing: -.02em; }
+    .card-intro { margin: 4px 0 18px; color: var(--muted); font-size: 14px; }
+    .setting { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center; padding: 15px 0; border-top: 1px solid var(--line); }
+    .setting:first-of-type { border-top: 0; }
+    .setting strong { display: block; font-size: 15px; }
+    .setting small { display: block; margin-top: 2px; color: var(--muted); }
+    select { min-width: 142px; padding: 9px 30px 9px 11px; color: var(--text); background: var(--panel-soft); border: 1px solid #344761; border-radius: 9px; }
+    select:focus, button:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+    .toggle { position: relative; width: 48px; height: 28px; }
+    .toggle input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+    .slider { position: absolute; inset: 0; border-radius: 99px; background: #344258; pointer-events: none; transition: .2s; }
+    .slider::after { content: ""; position: absolute; top: 4px; left: 4px; width: 20px; height: 20px; border-radius: 50%; background: white; transition: .2s; }
+    .toggle input:checked + .slider { background: #238562; }
+    .toggle input:checked + .slider::after { transform: translateX(20px); }
+    .toggle input:focus-visible + .slider { outline: 2px solid var(--blue); outline-offset: 3px; }
+    .evaluate { display: block; width: 100%; margin-top: 18px; padding: 12px 16px; border: 0; border-radius: 10px; color: #07130e; background: var(--green); font-weight: 750; cursor: pointer; }
+    .evaluate:hover { background: #75ebbb; }
+    .result-card { position: sticky; top: 16px; }
+    .score-row { display: flex; align-items: center; gap: 16px; margin: 19px 0; }
+    .score { display: grid; place-items: center; flex: 0 0 76px; height: 76px; border: 5px solid #344258; border-radius: 50%; font-size: 20px; font-weight: 800; }
+    .score.good { border-color: var(--green); }
+    .score.medium { border-color: var(--amber); }
+    .score.low { border-color: var(--red); }
+    .status { font-weight: 750; }
+    .progress { height: 8px; overflow: hidden; border-radius: 9px; background: #26344a; }
+    .progress span { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--green); transition: width .35s ease; }
+    .findings { display: grid; gap: 10px; margin-top: 18px; }
+    .finding { padding: 11px 12px; border-radius: 10px; background: var(--panel-soft); font-size: 14px; }
+    .finding b { display: block; margin-bottom: 2px; }
+    .finding.good b { color: var(--green); }
+    .finding.warn b { color: var(--amber); }
+    .finding.risk b { color: var(--red); }
+    .empty { color: var(--muted); font-size: 14px; }
+    footer { margin-top: 22px; color: var(--muted); font-size: 13px; text-align: center; }
+    @media (max-width: 760px) {
+      .layout { grid-template-columns: 1fr; }
+      .result-card { position: static; }
+      header { margin-bottom: 25px; }
+    }
+    @media (max-width: 460px) {
+      .shell { padding: 22px 15px 38px; }
+      .card { padding: 18px; }
+      .setting { gap: 8px; }
+      select { min-width: 122px; }
+      .local-tag { font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div class="brand"><span class="brand-mark" aria-hidden="true">⌁</span><span>নিরাপদ নেটওয়ার্ক ল্যাব</span></div>
+      <span class="local-tag">অফলাইন সিমুলেশন</span>
+    </header>
+
+    <section class="hero" aria-labelledby="title">
+      <div class="eyebrow">শিখুন · নিজের নেটওয়ার্ক সুরক্ষিত রাখুন</div>
+      <h1 id="title">Wi‑Fi নিরাপত্তা<br>নিজেই যাচাই করুন</h1>
+      <p>একটি কাল্পনিক রাউটারের সেটিংস বেছে নিন, তারপর নিরাপত্তা মূল্যায়ন চালান। এটি শেখার ডেমো—কোনো Wi‑Fi খোঁজে না, পাসওয়ার্ড নেয় না, এবং নেটওয়ার্কে যুক্ত হয় না।</p>
+    </section>
+
+    <aside class="notice">
+      <span aria-hidden="true">🛡</span>
+      <div><strong>শুধু নিরাপদ শেখার জন্য</strong>সব হিসাব আপনার ব্রাউজারেই হয়। এখানে কোনো বাস্তব নেটওয়ার্ক স্ক্যান, লগইন, বা আক্রমণের সুবিধা নেই।</div>
+    </aside>
+
+    <div class="layout">
+      <section class="card" aria-labelledby="settings-title">
+        <h2 id="settings-title">সিমুলেটেড রাউটার সেটিংস</h2>
+        <p class="card-intro">বাস্তব রাউটারের তথ্য এখানে লিখবেন না। নিচের অপশনগুলো শুধু অনুশীলনের জন্য।</p>
+
+        <label class="setting" for="encryption">
+          <span><strong>Wi‑Fi এনক্রিপশন</strong><small>নেটওয়ার্কে ডেটা সুরক্ষার ধরন</small></span>
+          <select id="encryption">
+            <option value="wpa3">WPA3</option>
+            <option value="wpa2">WPA2-AES</option>
+            <option value="weak">WEP / খোলা</option>
+          </select>
+        </label>
+        <div class="setting">
+          <span><strong>WPS চালু</strong><small>প্রয়োজন না হলে বন্ধ রাখুন</small></span>
+          <label class="toggle" aria-label="WPS চালু"><input id="wps" type="checkbox"><span class="slider"></span></label>
+        </div>
+        <div class="setting">
+          <span><strong>রাউটার অ্যাডমিন পাসওয়ার্ড বদলানো</strong><small>ডিফল্ট লগইন ব্যবহার করবেন না</small></span>
+          <label class="toggle" aria-label="অ্যাডমিন পাসওয়ার্ড বদলানো"><input id="admin" type="checkbox" checked><span class="slider"></span></label>
+        </div>
+        <div class="setting">
+          <span><strong>ফার্মওয়্যার আপডেট</strong><small>নিরাপত্তা সংশোধন পেতে আপডেট করুন</small></span>
+          <label class="toggle" aria-label="ফার্মওয়্যার আপডেট"><input id="firmware" type="checkbox" checked><span class="slider"></span></label>
+        </div>
+        <div class="setting">
+          <span><strong>গেস্ট নেটওয়ার্ক আলাদা</strong><small>অতিথিদের মূল ডিভাইস থেকে আলাদা রাখুন</small></span>
+          <label class="toggle" aria-label="গেস্ট নেটওয়ার্ক আলাদা"><input id="guest" type="checkbox" checked><span class="slider"></span></label>
+        </div>
+        <button class="evaluate" id="evaluate" type="button">নিরাপত্তা মূল্যায়ন করুন</button>
+      </section>
+
+      <section class="card result-card" aria-labelledby="result-title" aria-live="polite">
+        <h2 id="result-title">মূল্যায়নের ফল</h2>
+        <p class="card-intro">সেটিংস বেছে নিয়ে মূল্যায়ন চালান।</p>
+        <div class="score-row">
+          <div class="score" id="score">—</div>
+          <div><div class="status" id="status">এখনো মূল্যায়ন হয়নি</div><div class="subtle" id="score-label">সর্বোচ্চ ১০০ পয়েন্ট</div></div>
+        </div>
+        <div class="progress" role="progressbar" aria-label="নিরাপত্তা স্কোর" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress"><span id="bar"></span></div>
+        <div class="findings" id="findings"><div class="empty">মূল্যায়ন চালালে এখানে করণীয় দেখাবে।</div></div>
+      </section>
+    </div>
+    <footer>শেখার ডেমো · অনুমতি ছাড়া কোনো নেটওয়ার্কে প্রবেশের চেষ্টা করবেন না।</footer>
+  </main>
+  <script>
+    const el = (id) => document.getElementById(id);
+
+    el("evaluate").addEventListener("click", () => {
+      const encryption = el("encryption").value;
+      const checks = [
+        {
+          safe: encryption === "wpa3" || encryption === "wpa2",
+          title: encryption === "wpa3" ? "WPA3 এনক্রিপশন" : encryption === "wpa2" ? "WPA2-AES এনক্রিপশন" : "দুর্বল এনক্রিপশন",
+          detail: encryption === "wpa3" ? "ভালো পছন্দ। রাউটার ও ডিভাইস সমর্থন করলে WPA3 ব্যবহার করুন।" : encryption === "wpa2" ? "WPA2-AES গ্রহণযোগ্য; সম্ভব হলে WPA3 ব্যবহার করুন।" : "WEP বা খোলা নেটওয়ার্ক এড়িয়ে WPA2-AES বা WPA3 বেছে নিন।",
+          points: encryption === "wpa3" ? 30 : encryption === "wpa2" ? 24 : 0
+        },
+        { safe: !el("wps").checked, title: "WPS", detail: el("wps").checked ? "WPS বন্ধ করুন, যদি এটি ব্যবহার করার প্রয়োজন না থাকে।" : "WPS বন্ধ আছে।", points: el("wps").checked ? 0 : 15 },
+        { safe: el("admin").checked, title: "অ্যাডমিন লগইন", detail: el("admin").checked ? "ডিফল্ট অ্যাডমিন পাসওয়ার্ড বদলানো হয়েছে।" : "রাউটারের ডিফল্ট অ্যাডমিন পাসওয়ার্ড বদলান।", points: el("admin").checked ? 20 : 0 },
+        { safe: el("firmware").checked, title: "ফার্মওয়্যার", detail: el("firmware").checked ? "ফার্মওয়্যার আপডেট রাখা হয়েছে।" : "রাউটারের নির্মাতার নির্দেশনা মেনে ফার্মওয়্যার আপডেট করুন।", points: el("firmware").checked ? 20 : 0 },
+        { safe: el("guest").checked, title: "গেস্ট নেটওয়ার্ক", detail: el("guest").checked ? "অতিথিদের নেটওয়ার্ক আলাদা রাখা হয়েছে।" : "অতিথিদের জন্য আলাদা গেস্ট নেটওয়ার্ক বিবেচনা করুন।", points: el("guest").checked ? 15 : 0 }
+      ];
+      const score = checks.reduce((total, check) => total + check.points, 0);
+      const scoreNode = el("score");
+      scoreNode.textContent = score;
+      scoreNode.className = `score ${score >= 80 ? "good" : score >= 50 ? "medium" : "low"}`;
+      el("status").textContent = score >= 80 ? "ভালো নিরাপত্তা অভ্যাস" : score >= 50 ? "আরও উন্নতির সুযোগ আছে" : "কয়েকটি গুরুত্বপূর্ণ পরিবর্তন দরকার";
+      el("score-label").textContent = "এই সিমুলেশনের আনুমানিক স্কোর";
+      el("bar").style.width = `${score}%`;
+      el("bar").style.background = score >= 80 ? "var(--green)" : score >= 50 ? "var(--amber)" : "var(--red)";
+      el("progress").setAttribute("aria-valuenow", score);
+      el("findings").replaceChildren(...checks.map((check) => {
+        const item = document.createElement("div");
+        item.className = `finding ${check.safe ? "good" : "risk"}`;
+        const title = document.createElement("b");
+        title.textContent = `${check.safe ? "✓" : "!"} ${check.title}`;
+        const detail = document.createElement("span");
+        detail.textContent = check.detail;
+        item.append(title, detail);
+        return item;
+      }));
+    });
+  </script>
+</body>
+</html>
